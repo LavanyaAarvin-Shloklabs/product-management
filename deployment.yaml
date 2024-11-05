@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: template-microservice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: template-microservice
+  template:
+    metadata:
+      labels:
+        app: template-microservice
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: template-microservice
+          image: repo:tagVersion
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: template-microservice
+spec:
+  type: ClusterIP
+  selector:
+    app: template-microservice
+  ports:
+    - name: http
+      port: 4000
+      targetPort: 4000
