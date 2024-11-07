@@ -1,12 +1,25 @@
-//Injecting Discount controller
-
 const ProductRepository = require('./repositories/product');
-const ProductService = require('./services/product');
-const ProductController = require('./controllers/product');
+const CategoryRepository = require('./repositories/category');
 
-// Instantiate the repository - Inject the repository into the service - Inject the service into the controller
-const productController = new ProductController(new ProductService(new ProductRepository()));
+const ProductService = require('./services/product');
+const CategoryService = require('./services/category');
+
+const ProductController = require('./controllers/product');
+const CategoryController = require('./controllers/category');
+
+// Instantiate the repositories
+const productRepository = new ProductRepository();
+const categoryRepository = new CategoryRepository();
+
+// Instantiate the services
+const categoryService = new CategoryService(categoryRepository);
+const productService = new ProductService(productRepository, categoryService);
+
+// Instantiate the controllers
+const categoryController = new CategoryController(categoryService);
+const productController = new ProductController(productService);
 
 module.exports = {
     productController,
+    categoryController
 };
