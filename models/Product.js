@@ -56,6 +56,17 @@ const ProductSchema = new mongoose.Schema({
     id: false,
 });
 
+// Pre-validation to catch invalid types before they cause a CastError
+ProductSchema.pre('validate', function(next) {
+    if (typeof this.price !== 'number' || isNaN(this.price)) {
+        return next(new Error("Price must be a valid number"));
+    }
+    if (!Number.isInteger(this.stock)) {
+        return next(new Error("Stock must be an integer"));
+    }
+    next();
+});
+
 ProductSchema.virtual('category', {
     ref: Constants.CATEGORY, 
     localField: 'categoryId', 

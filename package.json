@@ -4,6 +4,7 @@
   "description": "This is just a starter Template.",
   "main": "server.js",
   "scripts": {
+    "test": "jest",
     "start": "NODE_ENV=production node server",
     "qa": "NODE_ENV=qa node server",
     "dev": "NODE_ENV=development nodemon server"
@@ -23,11 +24,15 @@
     "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
+    "multer": "^1.4.5-lts.1",
+    "redis": "^4.7.0",
     "uuid": "^9.0.1",
     "winston": "^3.11.0",
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^7.0.0"
   }
 }

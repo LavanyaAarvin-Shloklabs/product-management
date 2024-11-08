@@ -16,7 +16,7 @@ router.get('/' , protectRoutes, advancedResults(Product), productController.getA
 router.get('/:id', protectRoutes, validateDocument(Product, (req) => ({
     _id: req.params.id
 })), productController.getProductById);
-router.put('/:id', protectRoutes, authorizeRoles('admin'), validateDocument(Product, (req) => ({
+router.put('/:id', protectRoutes, authorizeRoles('admin'), upload, validateDocument(Product, (req) => ({
     _id: req.params.id
 })), productController.updateProductById);
 router.delete('/:id', protectRoutes, authorizeRoles('admin'), validateDocument(Product, (req) => ({

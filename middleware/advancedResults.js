@@ -1,5 +1,6 @@
 const advancedResults = (model, populate) => async (req, res, next) => {
     try {
+
         let query;
 
         // Copy req.query
@@ -27,6 +28,36 @@ const advancedResults = (model, populate) => async (req, res, next) => {
         if (req.query.select) {
             const fields = req.query.select.split(',').join(' ');
             query = query.select(fields);
+        }
+
+        if (req.query.category) {
+            const categoryName = req.query.category;
+
+            // Populate category with match condition to filter by category name
+            query = query.populate({
+                path: 'category',
+                match: { name: categoryName },
+                select: 'name description' // Select fields if necessary
+            });
+
+            // This filters out products where the category doesn't match
+            query = query.where({ categoryId: { $ne: null } });
+        } else if (populate) {
+            // Apply default population if no specific category filter is present
+            query = query.populate(populate);
+        }
+
+        // If category filter is used, it may return some null categories, so we filter those out
+        query = query.where({ categoryId: { $ne: null } });
+
+        // Price range filter
+        if (req.query.minPrice || req.query.maxPrice) {
+            const priceFilter = {};
+            
+            if (req.query.minPrice) priceFilter.$gte = Number(req.query.minPrice);
+            if (req.query.maxPrice) priceFilter.$lte = Number(req.query.maxPrice);
+            query = model.find({ price: priceFilter });
+            countQuery.price = priceFilter; 
         }
 
         // Sort

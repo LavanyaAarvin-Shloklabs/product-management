@@ -15,11 +15,7 @@ class ProductController {
      */
     createProduct = asyncHandler(async (req, res, next) => {
         logger.debug("Create a product");
-        const bodyToCreate = {
-            ...req.body,
-            images: req.files,
-            createdBy: req.userId
-        }
+        const bodyToCreate = { ...req.body, images: req.files, createdBy: req.userId }
         const product = await this.productService.createProduct(bodyToCreate)
         if (!product) {
             return next(new ErrorResponse('Error creating product', 400));
@@ -49,11 +45,7 @@ class ProductController {
      */
     getProductById = asyncHandler(async (req, res, next) => {
         logger.debug("Get Product By Id");
-        const productId = req.params.id;
-        if(!productId) {
-            return next(new ErrorResponse(`No product found with id of ${req.params.id}`, 404));
-        }
-        const product = await this.productService.getProductById(productId);
+        const product = await this.productService.getProductById(req.params.id);
         res.status(200).json(successResponse(product));
     });
 
@@ -65,16 +57,8 @@ class ProductController {
      */
     updateProductById = asyncHandler(async (req, res, next) => {
         logger.debug("Update product by Id");
-
-        const productId = req.params.id;
-        if(!productId) {
-            return next(new ErrorResponse(`No product found with id of ${req.params.id}`, 404));
-        }
-
-        const product = await this.productService.updateProductById(productId, req.body);
-        if (!product) {
-            return next(new ErrorResponse(`No product found with id of ${req.params.id}`, 404));
-        }
+        const bodyToCreate = {...req.body,images: req.files}
+        const product = await this.productService.updateProductById(req.params.id, bodyToCreate);
         res.status(200).json(successResponse(product));
     });
 
@@ -86,7 +70,7 @@ class ProductController {
      */
     deleteProductById = asyncHandler(async (req, res, next) => {
         logger.debug("Delete product by Id");
-        const product = await this.productService.deleteProductById(req.params.id);
+        const product = await this.productService.deleteById(req.params.id);
         res.status(200).json(successResponse(product));
     });
 }

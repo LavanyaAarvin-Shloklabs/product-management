@@ -60,9 +60,6 @@ class CategoryController {
             return next(new ErrorResponse(`No category found with id of ${req.params.id}`, 404));
         }
         category = await this.categoryService.updateById(req.params.id, req.body);
-        if (!category) {
-            return next(new ErrorResponse(`No category found with id of ${req.params.id}`, 404));
-        }
         res.status(200).json(successResponse(category));
     });
 
