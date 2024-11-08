@@ -15,6 +15,10 @@ class BaseService {
         return this.repository.findById(id, queryOptions);
     }
 
+    findOne(filter, queryOptions) {
+        return this.repository.findOne(filter, queryOptions);
+    }
+
     updateById(id, data) {
         return this.repository.updateById(id, data);
     }

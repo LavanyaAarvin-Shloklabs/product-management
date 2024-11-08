@@ -1,84 +1,79 @@
 const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 const logger = require('../logger')(module);
+const successResponse = require("../utils/successResponse")
 
-class DiscountController {
-    constructor(discountService) {
-        this.discountService = discountService;
+class ProductController {
+    constructor(productService) {
+        this.productService = productService;
     }
 
     /**
-     * @desc    Create a new discount
-     * @route   POST /api/discounts
+     * @desc    Create a new product
+     * @route   POST /api/v1/product
      * @access  Private
      */
-    create = asyncHandler(async (req, res, next) => {
-        validateDurationAndDiscountStart(req.body);
-        const discount = await this.discountService.create(req.body);
-        if (!discount) {
-            return next(new ErrorResponse('Error creating discount', 400));
+    createProduct = asyncHandler(async (req, res, next) => {
+        logger.debug("Create a product");
+        const bodyToCreate = { ...req.body, images: req.files, createdBy: req.userId }
+        const product = await this.productService.createProduct(bodyToCreate)
+        if (!product) {
+            return next(new ErrorResponse('Error creating product', 400));
         }
-        res.status(201).json({ success: true, data: discount });
+        res.status(201).json(successResponse(product));
     });
+    
 
     /**
-     * @desc    Get all discounts
-     * @route   GET /api/discounts
-     * @access  Public
+     * @desc    Get all products
+     * @route   GET /api/v1/product
+     * @access  Private
      */
-    findAll = asyncHandler(async (req, res, next) => {
+    getAllProducts = asyncHandler(async (req, res, next) => {
+        logger.debug("Get all product");
+        const products = res.advancedResults.data;
+        const updatedAdvancedResults = await this.productService.getAllProducts(products, req.query)
+        res.advancedResults.data = updatedAdvancedResults
         res.status(200).json(res.advancedResults);
     });
 
     /**
-     * @desc    Get a discount by ID
-     * @route   GET /api/discounts/:id
-     * @access  Public
+     * @desc    Get a product by ID
+     * @route   GET /api/v1/product/:id
+     * @param   {string} req.params.id - The ID of the product
+     * @access  Private
      */
-    findById = asyncHandler(async (req, res, next) => {
-        const discount = await this.discountService.findById(req.params.id);
-        if (!discount) {
-            return next(new ErrorResponse(`No discount found with id of ${req.params.id}`, 404));
-        }
-        res.status(200).json({ success: true, data: discount });
+    getProductById = asyncHandler(async (req, res, next) => {
+        logger.debug("Get Product By Id");
+        const product = await this.productService.getProductById(req.params.id);
+        res.status(200).json(successResponse(product));
     });
 
     /**
-     * @desc    Update a discount by ID
-     * @route   PUT /api/discounts/:id
+     * @desc    Update a product by ID
+     * @route   PUT /api/v1/product/:id
+     * @param   {string} req.params.id - The ID of the product
      * @access  Private
      */
-    updateById = asyncHandler(async (req, res, next) => {
-        let discount = await this.discountService.findById(req.params.id);
-        if (!discount) {
-            return next(new ErrorResponse(`No discount found with id of ${req.params.id}`, 404));
-        }
-        validateDurationAndDiscountStart({...(discount.toObject()), ...req.body})
-         discount = await this.discountService.updateById(req.params.id, req.body);
-        if (!discount) {
-            return next(new ErrorResponse(`No discount found with id of ${req.params.id}`, 404));
-        }
-        res.status(200).json({ success: true, data: discount });
+    updateProductById = asyncHandler(async (req, res, next) => {
+        logger.debug("Update product by Id");
+        const bodyToCreate = {...req.body,images: req.files}
+        const product = await this.productService.updateProductById(req.params.id, bodyToCreate);
+        res.status(200).json(successResponse(product));
     });
 
     /**
-     * @desc    Delete a discount by ID
-     * @route   DELETE /api/discounts/:id
+     * @desc    Delete a product by ID
+     * @route   DELETE /api/v1/product/:id
+     * @param   {string} req.params.id - The ID of the product
      * @access  Private
      */
-    deleteById = asyncHandler(async (req, res, next) => {
-        await this.discountService.deleteById(req.params.id);
-        res.status(200).json({ success: true, message: 'Discount deleted' });
+    deleteProductById = asyncHandler(async (req, res, next) => {
+        logger.debug("Delete product by Id");
+        const product = await this.productService.deleteById(req.params.id);
+        res.status(200).json(successResponse(product));
     });
 }
 
-const validateDurationAndDiscountStart = (discount) => {
-    logger.debug("Save section executed:", discount);
-    if (discount.validityDuration && (discount.discountStart || discount.discountEnd)) {
-        throw new Error('Specify either a validity duration or a discount period, not both.');
-    } else if (!discount.validityDuration && !(discount.discountStart && discount.discountEnd)) {
-        throw new Error('You must specify either a validity duration or a complete discount period.');
-    }
-}
 
-module.exports = DiscountController;
+module.exports = ProductController;

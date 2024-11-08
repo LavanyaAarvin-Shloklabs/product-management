@@ -45,7 +45,7 @@ const processError = (err) => {
     }
 
     if (err.name === 'ValidationError') {
-        console.log(Object.values(err.errors).map(value => value));
+        logger.debug(Object.values(err.errors).map(value => value));
         const message = Object.values(err.errors).map(value => value.message);
 
         error = new ErrorResponse(message.toString(), 400);
